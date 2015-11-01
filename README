@@ -1,0 +1,9 @@
+Infineer PC/SC Lite driver for TDA8029 serial
+
+Compilation:
+type make
+
+
+To install with pcsc-lite please refer to the pcsc-lite information on how 
+to install serial drivers.
+
