@@ -212,6 +212,13 @@ int tda8029Receive(uint8_t *buffer, uint16_t *length)
 	return res;
 }
 
+static void tda8029Transmit(uint8_t command, uint8_t *buffer, uint16_t length)
+{
+	flush_uart();
+	alparBufferPrepare(command, buffer, length);
+	tda8029UartWrite(buffer, length);
+}
+
 static int tda8029CheckPresenceCard()
 {
 	tda8029Transmit(CARD_PRESENCE);
@@ -221,13 +228,6 @@ static int tda8029CheckPresenceCard()
 
 	res = res && (length == 1) && (buffer[0] == 1);
 	return res;
-}
-
-static void tda8029Transmit(uint8_t command, uint8_t *buffer, uint16_t length)
-{
-	flush_uart();
-	alparBufferPrepare(command, buffer, length);
-	tda8029UartWrite(buffer, length);
 }
 
 
