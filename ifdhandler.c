@@ -198,6 +198,34 @@ int alparBufferParse(uint8_t *buffer)
 	return 1;
 }
 
+int tda8029Receive(uint8_t *buffer, uint16_t *length)
+{
+	tda8029UartRead(buffer, 4);
+
+	*length = ( buffer()[1] << 8 ) | ( buffer()[2] );
+
+	tda8029UartRead(buffer + 4, length + 1);
+
+	// check error
+	int res = alparBufferParse(buffer);
+
+	return res;
+}
+
+static int tda8029CheckPresenceCard()
+{
+	tda8029Transmit(CARD_PRESENCE);
+	AlparProtocol response = recv();
+
+	return (response.length() == 1) && (response.data()[0] == 1);
+}
+
+static void tda8029Transmit(uint8_t command, uint8_t *buffer, uint16_t length)
+{
+	flush_uart();
+	alparBufferPrepare(command, buffer, length);
+	tda8029UartWrite(buffer, length);
+}
 
 
 
