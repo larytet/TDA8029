@@ -232,8 +232,6 @@ static int tda8029CheckPresenceCard()
 	return res;
 }
 
-
-
 int tda8029PowerUpISO()
 {
 	tda8029Transmit(POWER_UP_ISO, NULL, 0);
@@ -241,19 +239,15 @@ int tda8029PowerUpISO()
 	uint8_t buffer[READ_BUFFER_SIZE];
 	int res = tda8029Receive(buffer, &length);
 
-	if(response.data()[0] == 0xc0) {
-		if (verbose)
-			PDBG("Card absent\n");
-		_status._card_present = false;
-		_status._error_code = AlparProtocol::ERR_PROTOCOL | response.data()[0];
-		_status._atr.length = 0;
-		return false;
+	uint8_t data = alparBufferPayload(buffer)[0];
+	if(data == 0xc0) {
+		printf("%s:Card is absent\r\n", __FUNCTION__);
+		return 0;
 	}
 
-	memcpy(_status._atr.data, response.data(), response.length());
-	_status._atr.length = response.length();
+	printf("%s:Status %d, %x\r\n", __FUNCTION__, length, data);
 
-	return true;
+	return 1;
 }
 
 bool Driver::power_off()
