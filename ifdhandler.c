@@ -78,7 +78,6 @@ static uint8_t *alparBufferPayload(uint8_t *data)
 
 static void alparBufferPrepare(uint8_t command, uint8_t *buffer, uint16_t length)
 {
-
 	buffer[0] = ALPAR_ACK;
 	buffer[1] = (length & 0xFF00) >> 8 ;
 	buffer[2] = length & 0x00FF;
@@ -221,16 +220,53 @@ static void tda8029Transmit(uint8_t command, uint8_t *buffer, uint16_t length)
 
 static int tda8029CheckPresenceCard()
 {
-	tda8029Transmit(CARD_PRESENCE);
+	tda8029Transmit(CARD_PRESENCE, NULL, 0);
 	uint16_t length;
 	uint8_t buffer[READ_BUFFER_SIZE];
 	int res = tda8029Receive(buffer, &length);
 
-	res = res && (length == 1) && (buffer[0] == 1);
+	uint8_t data = alparBufferPayload(buffer)[0];
+
+	res = res && (length == 1) && (data == 1);
+
 	return res;
 }
 
 
+
+int tda8029PowerUpISO()
+{
+	tda8029Transmit(POWER_UP_ISO, NULL, 0);
+	uint16_t length;
+	uint8_t buffer[READ_BUFFER_SIZE];
+	int res = tda8029Receive(buffer, &length);
+
+	if(response.data()[0] == 0xc0) {
+		if (verbose)
+			PDBG("Card absent\n");
+		_status._card_present = false;
+		_status._error_code = AlparProtocol::ERR_PROTOCOL | response.data()[0];
+		_status._atr.length = 0;
+		return false;
+	}
+
+	memcpy(_status._atr.data, response.data(), response.length());
+	_status._atr.length = response.length();
+
+	return true;
+}
+
+bool Driver::power_off()
+{
+	_status._card_present = false;
+	_status._error_code = 0;
+	_status._atr.length = 0;
+
+	transmit( AlparProtocol(AlparProtocol::POWER_OFF) );
+	recv();
+
+	return true;
+}
 
 DEVICE_CAPABILITIES device_data = {  "Infineer Inc.","Infineer",1,"DT3000/DT3500/LT4000",0,SCARD_PROTOCOL_T0|SCARD_PROTOCOL_T1,4000,4000,10752,10752 ,
 		MAX_IFSD,0,0,0,0,0};
