@@ -215,9 +215,12 @@ int tda8029Receive(uint8_t *buffer, uint16_t *length)
 static int tda8029CheckPresenceCard()
 {
 	tda8029Transmit(CARD_PRESENCE);
-	AlparProtocol response = recv();
+	uint16_t length;
+	uint8_t buffer[READ_BUFFER_SIZE];
+	int res = tda8029Receive(buffer, &length);
 
-	return (response.length() == 1) && (response.data()[0] == 1);
+	res = res && (length == 1) && (buffer[0] == 1);
+	return res;
 }
 
 static void tda8029Transmit(uint8_t command, uint8_t *buffer, uint16_t length)
