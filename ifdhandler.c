@@ -251,16 +251,14 @@ int tda8029PowerUpISO()
 	return 1;
 }
 
-bool Driver::power_off()
+int tda8029PowerOff()
 {
-	_status._card_present = false;
-	_status._error_code = 0;
-	_status._atr.length = 0;
+	tda8029Transmit(POWER_OFF, NULL, 0);
+	uint16_t length;
+	uint8_t buffer[READ_BUFFER_SIZE];
+	int res = tda8029Receive(buffer, &length);
 
-	transmit( AlparProtocol(AlparProtocol::POWER_OFF) );
-	recv();
-
-	return true;
+	return res;
 }
 
 DEVICE_CAPABILITIES device_data = {  "Infineer Inc.","Infineer",1,"DT3000/DT3500/LT4000",0,SCARD_PROTOCOL_T0|SCARD_PROTOCOL_T1,4000,4000,10752,10752 ,
