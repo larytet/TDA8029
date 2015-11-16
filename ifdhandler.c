@@ -242,11 +242,11 @@ int tda8029PowerUpISO()
 
 	uint8_t data = alparBufferPayload(buffer)[0];
 	if(data == 0xc0) {
-		printf("%s:Card is absent\r\n", __FUNCTION__);
+		FUNCTION_LOG("Card is absent\r\n",);
 		return 0;
 	}
 
-	printf("%s:Status %d, %x\r\n", __FUNCTION__, length, data);
+	FUNCTION_LOG("Status %d, %x\r\n", length, data);
 
 	return 1;
 }
