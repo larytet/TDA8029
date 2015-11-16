@@ -261,6 +261,35 @@ int tda8029PowerOff()
 	return res;
 }
 
+
+int tda8029CardCommand(const void *cmd, unsigned cmd_len, void *resp, unsigned *resp_len)
+{
+	int res = tda8029Transmit(CARD_COMMAND, cmd, cmd_len);
+	if (res)
+	{
+		res = tda8029Receive(resp, resp_len);
+	}
+
+	return res;
+}
+
+int tda8029SendNumMask(char *firmware_str)
+{
+	tda8029Transmit(SEND_NUM_MASK, NULL, 0);
+	uint16_t length;
+	uint8_t buffer[READ_BUFFER_SIZE];
+	int res = tda8029Receive(buffer, &length);
+	if (res)
+	{
+		uint8_t *data = alparBufferPayload(buffer);
+		memcpy(firmware_str, data, length);
+		firmware_str[length]=0;
+	}
+
+	return res;
+}
+
+
 DEVICE_CAPABILITIES device_data = {  "Infineer Inc.","Infineer",1,"DT3000/DT3500/LT4000",0,SCARD_PROTOCOL_T0|SCARD_PROTOCOL_T1,4000,4000,10752,10752 ,
 		MAX_IFSD,0,0,0,0,0};
 struct smartport_t SmartCard[16];
