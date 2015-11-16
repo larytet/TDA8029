@@ -34,6 +34,7 @@
 #include <sys/fcntl.h>
 #include <sys/types.h>
 
+#define FUNCTION_LOG(format, ...) printf("%s:"format,  __FUNCTION__, ## __VA_ARGS__)
 
 enum {
 	MAX_PACKET_DATA = 506,
@@ -166,7 +167,7 @@ int alparBufferParse(uint8_t *buffer)
 {
 	if((buffer[0] != ALPAR_ACK) && (buffer[0] != ALPAR_NAK) )
 	{
-		printf("Unknown packet signature %x\r\n", buffer[0]);
+		FUNCTION_LOG("Unknown packet signature %x\r\n", buffer[0]);
 		return 0;
 	}
 
@@ -175,7 +176,7 @@ int alparBufferParse(uint8_t *buffer)
 
 	if (length > MAX_PACKET_DATA)
 	{
-		printf("Data is too long %x\r\n", length);
+		FUNCTION_LOG("Data is too long %x\r\n", length);
 		return 0;
 	}
 
@@ -184,13 +185,13 @@ int alparBufferParse(uint8_t *buffer)
 
 	if (alparLrc)
 	{
-		printf("Bad LRC %x, should be zero\r\n", alparLrc);
+		FUNCTION_LOG("Bad LRC %x, should be zero\r\n", alparLrc);
 		return 0;
 	}
 
 	if (buffer[0] != ALPAR_ACK)
 	{
-		PERR("Error: %s", alparErrorStr(buffer[5]));
+		FUNCTION_LOG("error %s", alparErrorStr(buffer[5]));
 		return 0;
 	}
 
