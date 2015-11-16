@@ -63,7 +63,7 @@ enum {
 	ERR_PROTOCOL            = (1<<24),
 };
 
-static uint8_t alparLrc(uint32_t length, uint8_t *buffer) {
+static uint8_t alparLrc(uint32_t length, const uint8_t *buffer) {
 	uint8_t lrc = _buffer[0];
 
 	for(unsigned i = 1; i < length; i++)
@@ -87,7 +87,7 @@ static void alparBufferPrepare(uint8_t command, uint8_t *buffer, uint16_t length
 	buffer[length + 4] = alparLrc(buffer, length + 4);
 }
 
-const char* alparErrorStr(uint8_t status)
+static const char* alparErrorStr(uint8_t status)
 {
 	int _errno = status;
 
@@ -163,7 +163,7 @@ const char* alparErrorStr(uint8_t status)
 	}
 }
 
-int alparBufferParse(uint8_t *buffer)
+static int alparBufferParse(const uint8_t *buffer)
 {
 	if((buffer[0] != ALPAR_ACK) && (buffer[0] != ALPAR_NAK) )
 	{
@@ -180,7 +180,7 @@ int alparBufferParse(uint8_t *buffer)
 		return 0;
 	}
 
-	uint8_t alparLrc = lrc(buffer, length + 5);
+	uint8_t alparLrc = alparLrc(buffer, length + 5);
 
 
 	if (alparLrc)
@@ -198,7 +198,7 @@ int alparBufferParse(uint8_t *buffer)
 	return 1;
 }
 
-int tda8029Receive(uint8_t *buffer, uint16_t *length)
+static int tda8029Receive(uint8_t *buffer, uint16_t *length)
 {
 	tda8029UartRead(buffer, 4);
 
@@ -233,7 +233,7 @@ static int tda8029CheckPresenceCard()
 	return res;
 }
 
-int tda8029PowerUpISO()
+static int tda8029PowerUpISO()
 {
 	tda8029Transmit(POWER_UP_ISO, NULL, 0);
 	uint16_t length;
@@ -251,7 +251,7 @@ int tda8029PowerUpISO()
 	return 1;
 }
 
-int tda8029PowerOff()
+static int tda8029PowerOff()
 {
 	tda8029Transmit(POWER_OFF, NULL, 0);
 	uint16_t length;
@@ -262,7 +262,7 @@ int tda8029PowerOff()
 }
 
 
-int tda8029CardCommand(const void *cmd, unsigned cmd_len, void *resp, unsigned *resp_len)
+static int tda8029CardCommand(const void *cmd, unsigned cmd_len, void *resp, unsigned *resp_len)
 {
 	int res = tda8029Transmit(CARD_COMMAND, cmd, cmd_len);
 	if (res)
@@ -273,7 +273,7 @@ int tda8029CardCommand(const void *cmd, unsigned cmd_len, void *resp, unsigned *
 	return res;
 }
 
-int tda8029SendNumMask(char *firmware_str)
+static int tda8029SendNumMask(char *firmware_str)
 {
 	tda8029Transmit(SEND_NUM_MASK, NULL, 0);
 	uint16_t length;
