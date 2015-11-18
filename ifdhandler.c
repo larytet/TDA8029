@@ -1742,3 +1742,21 @@ RESPONSECODE IFDHICCPresence( DWORD Lun ) {
 	}
 }
 
+static UCHAR calcChksum(PUCHAR data,DWORD length )
+{
+       DWORD i;
+       unsigned char chksum=0;
+       for(i=0;i<length;i++) {
+               chksum^=data[i];
+       }
+       // PRINTF("chksum = %0x \n",chksum);
+       return chksum;
+}
+
+static int validStatus( UCHAR status ) {
+       if( status & READER_ERROR )
+               return 0;
+       if ( !(status & POWERED) )
+               return 0;
+       return 1;
+}
