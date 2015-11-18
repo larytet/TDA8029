@@ -235,7 +235,7 @@ static int tda8029CheckPresenceCard()
 	return res;
 }
 
-static int tda8029PowerUpISO()
+static int tda8029PowerUpISO(uint8_t *rsp, int *rsp_size)
 {
 	tda8029Transmit(POWER_UP_ISO, NULL, 0);
 	uint16_t length;
@@ -249,6 +249,8 @@ static int tda8029PowerUpISO()
 	}
 
 	FUNCTION_LOG("Status %d, %x\r\n", length, data);
+	*rsp_size = length;
+	memcpy(rsp, data, length);
 
 	return 1;
 }
@@ -663,8 +665,10 @@ RESPONSECODE IFDHCreateChannel ( DWORD Lun, DWORD Channel ) {
 	SmartCard[Lun].abrt= 1;
 	SmartCard[Lun].abrt= 1;
 	SmartCard[Lun].device = device_data;
-	SmartCard[Lun].sts_byte=0;
+	SmartCard[Lun].sts_byte=1; // 1-powered 0-not powered;
 	SmartCard[Lun].memory_card=0;
+	SmartCard[Lun].ICC.ICC_Presence = SCARD_PRESENT;
+
 		
 for(i=0;i<NUM_SLOTS;i++)
 {
@@ -1102,6 +1106,13 @@ RESPONSECODE IFDHPowerICC ( DWORD Lun, DWORD Action,
 	}
 /*
 */
+	if ( Action ==  IFD_POWER_UP )  {
+		tda8029PowerUpISO(SmartCard[Lun].ICC.ATR, &SmartCard[Lun].ATRLen);
+	}
+	else if ( Action == IFD_POWER_DOWN)  {
+		tda8029PowerOff();
+	}
+#if 0
 	SmartCard[Lun].pcb=0;
 	SPCmdPacket = alloca(INFINEER_MAX_BUFFER);
 	CmdAPDU = alloca(INFINEER_MAX_BUFFER);
@@ -1235,7 +1246,7 @@ RESPONSECODE IFDHPowerICC ( DWORD Lun, DWORD Action,
 		 SetBaudRate(Lun,3,temparr,&templen);
 	}
 #endif
-
+#endif
 	return IFD_SUCCESS;	
 
 }
@@ -1685,7 +1696,7 @@ printf("memReadOrWrite %d \n", memReadOrWrite );
 }
 
 RESPONSECODE IFDHICCPresence( DWORD Lun ) {
-
+#if 0
   /* This function returns the status of the card inserted in the 
      reader/slot specified by Lun.  It will return either:
 
@@ -1726,6 +1737,7 @@ RESPONSECODE IFDHICCPresence( DWORD Lun ) {
 		SmartCard[Lun].ICC.ICC_Presence = SCARD_ABSENT;
 		return IFD_ICC_NOT_PRESENT;
 	}
+#endif
 }
 
 static UCHAR calcChksum(PUCHAR data,DWORD length )
