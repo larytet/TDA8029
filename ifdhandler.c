@@ -266,7 +266,7 @@ static int tda8029PowerOff()
 }
 
 
-static int tda8029CardCommand(const void *cmd, unsigned cmd_len, void *resp, unsigned *resp_len)
+static int tda8029CardCommand(const uint8_t *cmd, unsigned cmd_len, uint8_t *resp, unsigned *resp_len)
 {
 	tda8029Transmit(CARD_COMMAND, cmd, cmd_len);
 	int res = tda8029Receive(resp, resp_len);
@@ -1322,6 +1322,12 @@ RESPONSECODE IFDHTransmitToICC_T0 ( int Lun,PUCHAR TxBuffer, DWORD TxLength,
      IFD_ICC_NOT_PRESENT
      IFD_PROTOCOL_NOT_SUPPORTED
   */
+
+	unsigned resp_len;
+	tda8029CardCommand(TxBuffer, TxLength, RxBuffer, &resp_len);
+	RxLength = resp_len;
+	return IFD_SUCCESS;
+#if 0
 	PUCHAR SPCmdPacket;
         UCHAR control; 
 	//printf("In IFD handler Transmit to ICC length = %d \n",TxLength);   
@@ -1362,9 +1368,12 @@ RESPONSECODE IFDHTransmitToICC_T0 ( int Lun,PUCHAR TxBuffer, DWORD TxLength,
                 return IFD_COMMUNICATION_ERROR ;
         }              
 	return IFD_SUCCESS;
-  
+#endif
 }
+
 void IFSRequest(int Lun , int val) {
+	tda8029Transmit(val, NULL, 0);
+#if 0
 	PUCHAR rbuff = alloca(INFINEER_MAX_BUFFER);
 	PUCHAR buff  = alloca(INFINEER_MAX_BUFFER);
 	UCHAR control=0x10;
@@ -1392,7 +1401,9 @@ void IFSRequest(int Lun , int val) {
 	}
 		SmartCard[Lun].pcb=0;
 		SmartCard[Lun].oldpcb=0;
-	}	
+#endif
+}
+
 RESPONSECODE IFDHTransmitToICC_T1 ( int Lun,PUCHAR TxBuffer, DWORD TxLength,
                  PUCHAR RxBuffer, PDWORD RxLength
                  ) { 
@@ -1436,6 +1447,8 @@ RESPONSECODE IFDHTransmitToICC_T1 ( int Lun,PUCHAR TxBuffer, DWORD TxLength,
      IFD_ICC_NOT_PRESENT
      IFD_PROTOCOL_NOT_SUPPORTED
   */
+	return IFD_SUCCESS;
+#if 0
 	PUCHAR SPCmdPacket;
         UCHAR control; 
  	UCHAR nad=0;
@@ -1588,7 +1601,7 @@ RESPONSECODE IFDHTransmitToICC_T1 ( int Lun,PUCHAR TxBuffer, DWORD TxLength,
 //	}
 //		if( *RxLength > 4 ) *RxLength -=4;
 	return IFD_SUCCESS;
-  
+#endif
 }
 RESPONSECODE IFDHControl ( DWORD Lun, PUCHAR TxBuffer, 
 			 DWORD TxLength, PUCHAR RxBuffer, 
