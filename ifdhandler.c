@@ -376,8 +376,12 @@ static int IOCTL(int fd,int command,unsigned char buffer[] ) {
 #define IOCTL ioctl
 #endif
 #endif
-	
+
+/**
+ * WHat this function does? Something chip related?
+ */
 static void CardTracking(int Lun) {
+#if 0
     unsigned char buff[300];
     unsigned char Resp[300];
     int rlen;
@@ -397,7 +401,9 @@ static void CardTracking(int Lun) {
     for(i=0;i<rlen;i++) {
         PRINTF("%0x ",Resp[i]);
     }
+#endif
 }			
+
 static int CalculatePCB(int Lun,PUCHAR RxBuffer) {
 	UCHAR rpcb  = RxBuffer[1];
 	PRINTF("In calc pcb \n");
@@ -647,7 +653,6 @@ RESPONSECODE IFDHCreateChannel ( DWORD Lun, DWORD Channel ) {
   */
 	int i;
 	char devname[50];
-	char *strformat = "/dev/ttyUSB%d";
 	Lun=Lun&0xFF;
 	SmartCard[Lun].temp=0;
 	SmartCard[Lun].pcb= 0;
@@ -661,32 +666,10 @@ RESPONSECODE IFDHCreateChannel ( DWORD Lun, DWORD Channel ) {
 	SmartCard[Lun].sts_byte=0;
 	SmartCard[Lun].memory_card=0;
 		
-//	sprintf(devname,strformat,Channel);
-//	PRINTF("name = %s \n",devname);
-
-#ifdef _PCMCIA_
-	strformat="/dev/LT4000%d";
-	for(i=0;i<NUM_SLOTS;i++)
-	{
-		sprintf(devname,strformat,i);
-   		SmartCard[i].fd = open(devname,0);
-	}
-#elif _USB_
-	strformat="/dev/usb/DT3500%d";
-	for(i=0;i<NUM_SLOTS;i++)
-	{
-		sprintf(devname,strformat,i);
-		//printf("%s \n", devname);
-		SmartCard[i].fd = open(devname,O_RDWR);
-		//if( SmartCard[i].fd < 0) perror("open");
-		//printf("usb fd = %d \n", SmartCard[i].fd);
-	}	
-#elif _SERIAL_
-	for(i=0;i<NUM_SLOTS;i++)
-	{
+for(i=0;i<NUM_SLOTS;i++)
+{
 	SmartCard[i].fd = scopen(i,0,0);
-	}
-#endif
+}
 for(i=0;i<NUM_SLOTS;i++) 
 {
    if( SmartCard[i].fd > 0)  
@@ -732,6 +715,9 @@ RESPONSECODE IFDHGetCapabilities ( DWORD Lun, DWORD Tag,
      Tag - the tag for the information requested
          example: TAG_IFD_ATR - return the Atr and it's size (required).
          these tags are defined in ifdhandler.h
+         TAG_IFD_ATR			0x0303
+         TAG_IFD_SLOTNUM                 0x0180
+         TAG_IFD_SLOTS_NUMBER            0x0FAE
 
      Length - the length of the returned data
      Value  - the value of the data

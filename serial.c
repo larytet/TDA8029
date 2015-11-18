@@ -12,7 +12,7 @@
 
 /* modified by Gregor A. Panstruga */ 
 
-static char ttynametmpl[] = "/dev/ttyS%01d";
+static char ttynametmpl[] = "/dev/ttyUSB%d";
 
 /* Right now we only save termios state for the last tty opened, which is fine
    as long as only one tty is open at a time. */
