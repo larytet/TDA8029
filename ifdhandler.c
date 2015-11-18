@@ -1,5 +1,6 @@
 #define INFINEER_COMMAND 1421
 #include <stdlib.h>
+#include <stdint.h>
 
 /*****************************************************************
 /
@@ -64,10 +65,11 @@ enum {
 };
 
 static uint8_t alparLrc(uint32_t length, const uint8_t *buffer) {
-	uint8_t lrc = _buffer[0];
+	uint8_t lrc = buffer[0];
 
-	for(unsigned i = 1; i < length; i++)
-		lrc = lrc ^ _buffer[i];
+	unsigned i;
+	for(i = 1; i < length; i++)
+		lrc = lrc ^ buffer[i];
 
 	return lrc;
 }
@@ -180,7 +182,7 @@ static int alparBufferParse(const uint8_t *buffer)
 		return 0;
 	}
 
-	uint8_t alparLrc = alparLrc(buffer, length + 5);
+	uint8_t lrc = alparLrc(buffer, length + 5);
 
 
 	if (alparLrc)
@@ -202,7 +204,7 @@ static int tda8029Receive(uint8_t *buffer, uint16_t *length)
 {
 	tda8029UartRead(buffer, 4);
 
-	*length = ( buffer()[1] << 8 ) | ( buffer()[2] );
+	*length = ( buffer[1] << 8 ) | ( buffer[2] );
 
 	tda8029UartRead(buffer + 4, length + 1);
 
@@ -242,7 +244,7 @@ static int tda8029PowerUpISO()
 
 	uint8_t data = alparBufferPayload(buffer)[0];
 	if(data == 0xc0) {
-		FUNCTION_LOG("Card is absent\r\n",);
+		FUNCTION_LOG("Card is absent\r\n");
 		return 0;
 	}
 
@@ -264,11 +266,8 @@ static int tda8029PowerOff()
 
 static int tda8029CardCommand(const void *cmd, unsigned cmd_len, void *resp, unsigned *resp_len)
 {
-	int res = tda8029Transmit(CARD_COMMAND, cmd, cmd_len);
-	if (res)
-	{
-		res = tda8029Receive(resp, resp_len);
-	}
+	tda8029Transmit(CARD_COMMAND, cmd, cmd_len);
+	int res = tda8029Receive(resp, resp_len);
 
 	return res;
 }
@@ -648,7 +647,7 @@ RESPONSECODE IFDHCreateChannel ( DWORD Lun, DWORD Channel ) {
   */
 	int i;
 	char devname[50];
-	char *strformat = "/dev/pcsc/%d";
+	char *strformat = "/dev/ttyUSB%d";
 	Lun=Lun&0xFF;
 	SmartCard[Lun].temp=0;
 	SmartCard[Lun].pcb= 0;
