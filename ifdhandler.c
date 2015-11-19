@@ -1447,6 +1447,9 @@ RESPONSECODE IFDHTransmitToICC_T1 ( int Lun,PUCHAR TxBuffer, DWORD TxLength,
      IFD_ICC_NOT_PRESENT
      IFD_PROTOCOL_NOT_SUPPORTED
   */
+	unsigned resp_len;
+	tda8029CardCommand(TxBuffer, TxLength, RxBuffer, &resp_len);
+	RxLength = resp_len;
 	return IFD_SUCCESS;
 #if 0
 	PUCHAR SPCmdPacket;
