@@ -691,6 +691,23 @@ for(i=0;i<NUM_SLOTS;i++)
    return IFD_SUCCESS;
 }
 
+int tda8029UartRead(uint8_t *buffer, int length)
+{
+	int fd = SmartCard[0].fd;
+	int count = read(fd, buffer, length);
+
+	return count;
+}
+
+int tda8029UartWrite(uint8_t *buffer, int length)
+{
+	int fd = SmartCard[0].fd;
+	int count = write(fd, buffer, length);
+
+	return count;
+}
+
+
 RESPONSECODE IFDHCloseChannel ( DWORD Lun ) {
   
   /* This function should close the reader communication channel
