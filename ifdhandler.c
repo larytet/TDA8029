@@ -200,8 +200,10 @@ static int alparBufferParse(const uint8_t *buffer)
 	return 1;
 }
 
-static int tda8029Receive(uint8_t *buffer, uint16_t *length)
+static int tda8029Receive(uint8_t buffer[READ_BUFFER_SIZE], uint16_t *length)
 {
+	memset(buffer, 0, READ_BUFFER_SIZE);
+
 	tda8029UartRead(buffer, 4);
 
 	*length = ( buffer[1] << 8 ) | ( buffer[2] );
