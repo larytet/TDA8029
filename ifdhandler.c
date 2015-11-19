@@ -1626,6 +1626,9 @@ RESPONSECODE IFDHControl ( DWORD Lun, PUCHAR TxBuffer,
      Notes:
      RxLength should be zero on error.
   */
+    return IFD_COMMUNICATION_ERROR;
+
+#if 0
 	PUCHAR SPCmdPacket;
         UCHAR control;
 	int memReadOrWrite=1;
@@ -1708,10 +1711,17 @@ printf("memReadOrWrite %d \n", memReadOrWrite );
 		printf("%0x ", RxBuffer[i]);
 	}
 	printf("\n");
-    return IFD_SUCCESS;                
+    return IFD_SUCCESS;
+#endif
 }
 
 RESPONSECODE IFDHICCPresence( DWORD Lun ) {
+	int res = tda8029CheckPresenceCard();
+	if (res)
+	{
+		return IFD_ICC_PRESENT;
+	}
+	return IFD_ICC_NOT_PRESENT;
 #if 0
   /* This function returns the status of the card inserted in the 
      reader/slot specified by Lun.  It will return either:
